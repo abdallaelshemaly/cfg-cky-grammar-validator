@@ -73,8 +73,14 @@ class CKYParser:
         self.unary_rules = grammar.get("unary", {})
         self.start_symbol = "S"
 
-    def parse(self, sentence: str) -> dict[str, Any]:
-        tokens = tokenize(sentence)
+    def parse(self, sentence_or_tokens):
+        if isinstance(sentence_or_tokens, str):
+            tokens = tokenize(sentence_or_tokens)
+        elif isinstance(sentence_or_tokens, list):
+            tokens = sentence_or_tokens
+        else:
+            raise TypeError("parse() expects a sentence string or a list of tokens")
+
         return self.parse_tokens(tokens)
 
     def parse_tokens(self, tokens: List[str]) -> dict[str, Any]:
