@@ -1,7 +1,48 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Mapping, Tuple
+from typing import Mapping, Tuple
+
+
+CNF_GRAMMAR = {
+    "binary": {
+        ("NP", "VP"): {"S"},
+        ("Det", "N"): {"NP"},
+        ("Det", "AdjN"): {"NP"},
+        ("Adj", "N"): {"AdjN"},
+        ("V", "NP"): {"VP"},
+    },
+    "unary": {
+        "N": {"NP"},
+        "Pron": {"NP"},
+        "Name": {"NP"},
+        "V": {"VP"},
+    },
+    "lexical": {
+        "the": {"Det"},
+        "a": {"Det"},
+        "cat": {"N"},
+        "dog": {"N"},
+        "fish": {"N"},
+        "boy": {"N"},
+        "girl": {"N"},
+        "apple": {"N"},
+        "runs": {"V"},
+        "eats": {"V"},
+        "likes": {"V"},
+        "sees": {"V"},
+        "big": {"Adj"},
+        "small": {"Adj"},
+        "hungry": {"Adj"},
+        "he": {"Pron"},
+        "she": {"Pron"},
+        "they": {"Pron"},
+        "john": {"Name"},
+        "mary": {"Name"},
+    },
+}
+
+ALLOWED_WORDS = set(CNF_GRAMMAR["lexical"].keys())
 
 
 @dataclass
@@ -13,63 +54,11 @@ class CFGGrammar:
 
     @classmethod
     def level2(cls) -> "CFGGrammar":
-        lexical_by_category = {
-            "Det": {"a", "an", "my", "that", "the", "this", "your"},
-            "Noun": {
-                "apple",
-                "book",
-                "car",
-                "cat",
-                "child",
-                "dog",
-                "room",
-                "student",
-                "teacher",
-            },
-            "Verb": {
-                "finds",
-                "helps",
-                "likes",
-                "reads",
-                "runs",
-                "sees",
-                "sleeps",
-                "smiles",
-            },
-            "Adj": {"big", "happy", "red", "small", "tall", "young"},
-            "Pronoun": {"he", "i", "it", "she", "they", "we", "you"},
-            "ProperNoun": {"ali", "john", "mary", "noor", "omar", "sara"},
-        }
-
-        lexical_rules: Dict[str, set[str]] = {}
-        for category, words in lexical_by_category.items():
-            for word in words:
-                lexical_rules.setdefault(word, set()).add(category)
-
-        unary_rules = _freeze_rule_map(
-            {
-                "Pronoun": {"NP"},
-                "ProperNoun": {"NP"},
-                "Noun": {"Nominal"},
-                "Verb": {"VP"},
-            }
-        )
-
-        binary_rules = _freeze_binary_rule_map(
-            {
-                ("NP", "VP"): {"S"},
-                ("Det", "Nominal"): {"NP"},
-                ("Det", "AdjNominal"): {"NP"},
-                ("Adj", "Noun"): {"AdjNominal"},
-                ("Verb", "NP"): {"VP"},
-            }
-        )
-
         return cls(
             start_symbol="S",
-            lexical_rules=_freeze_rule_map(lexical_rules),
-            unary_rules=unary_rules,
-            binary_rules=binary_rules,
+            lexical_rules=_freeze_rule_map(CNF_GRAMMAR["lexical"]),
+            unary_rules=_freeze_rule_map(CNF_GRAMMAR["unary"]),
+            binary_rules=_freeze_binary_rule_map(CNF_GRAMMAR["binary"]),
         )
 
     def lexical_categories(self, token: str) -> frozenset[str]:
@@ -88,21 +77,23 @@ class CFGGrammar:
         return [
             "S -> NP VP",
             "NP -> Det N",
-            "NP -> Det Adj N",
-            "NP -> Pronoun",
-            "NP -> ProperNoun",
-            "VP -> Verb",
-            "VP -> Verb NP",
+            "NP -> Det AdjN",
+            "AdjN -> Adj N",
+            "NP -> N",
+            "NP -> Pron",
+            "NP -> Name",
+            "VP -> V",
+            "VP -> V NP",
         ]
 
 
-def _freeze_rule_map(rule_map: Mapping[str, Iterable[str]]) -> Dict[str, frozenset[str]]:
+def _freeze_rule_map(rule_map: Mapping[str, set[str]]) -> dict[str, frozenset[str]]:
     return {key: frozenset(values) for key, values in rule_map.items()}
 
 
 def _freeze_binary_rule_map(
-    rule_map: Mapping[Tuple[str, str], Iterable[str]]
-) -> Dict[Tuple[str, str], frozenset[str]]:
+    rule_map: Mapping[Tuple[str, str], set[str]]
+) -> dict[Tuple[str, str], frozenset[str]]:
     return {key: frozenset(values) for key, values in rule_map.items()}
 
 

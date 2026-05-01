@@ -14,17 +14,19 @@ def main() -> None:
     later be reviewed and filtered by hand.
     """
 
-    dataset = load_dataset("jfleg", split="validation")
+    dataset = load_dataset("jhu-clsp/jfleg")
     rows = []
-    for item in dataset:
-        rows.append(
-            {
-                "sentence": item["sentence"],
-                "corrections": " || ".join(item["corrections"]),
-            }
-        )
+    for split_name, split_data in dataset.items():
+        for item in split_data:
+            rows.append(
+                {
+                    "sentence": item["sentence"],
+                    "corrections": " || ".join(item["corrections"]),
+                    "split": split_name,
+                }
+            )
 
-    output_path = Path(__file__).resolve().parents[1] / "data" / "jfleg_validation_raw.csv"
+    output_path = Path(__file__).resolve().parents[1] / "data" / "jfleg_raw.csv"
     pd.DataFrame(rows).to_csv(output_path, index=False)
     print(f"Saved {len(rows)} raw JFLEG rows to {output_path}")
 
