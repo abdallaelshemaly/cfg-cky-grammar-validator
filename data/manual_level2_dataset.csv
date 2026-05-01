@@ -1,0 +1,13 @@
+sentence,label,notes
+The cat sleeps.,VALID,Simple intransitive declarative sentence
+John likes Mary.,VALID,Proper-name subject and object
+She reads the book.,VALID,Pronoun subject with object noun phrase
+The red dog runs.,VALID,Adjective inside the subject noun phrase
+Mary sees the small cat.,VALID,Proper name subject with adjectival object
+Cat the sleeps.,INVALID,Wrong noun phrase order
+The sleeps cat.,INVALID,Verb placed inside the noun phrase
+John the cat likes.,INVALID,Unsupported subject sequence
+The cat the dog sees.,INVALID,Sentence does not fit the scoped VP pattern
+The happy runs.,INVALID,Adjective appears without a noun
+Books likes Mary.,INVALID,Unknown plural noun token for the starter lexicon
+Under the tree sleeps.,INVALID,Prepositional opening is out of scope
