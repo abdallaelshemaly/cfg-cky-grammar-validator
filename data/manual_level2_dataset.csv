@@ -1,13 +1,33 @@
-sentence,label,notes
-The cat sleeps.,VALID,Simple intransitive declarative sentence
-John likes Mary.,VALID,Proper-name subject and object
-She reads the book.,VALID,Pronoun subject with object noun phrase
-The red dog runs.,VALID,Adjective inside the subject noun phrase
-Mary sees the small cat.,VALID,Proper name subject with adjectival object
-Cat the sleeps.,INVALID,Wrong noun phrase order
-The sleeps cat.,INVALID,Verb placed inside the noun phrase
-John the cat likes.,INVALID,Unsupported subject sequence
-The cat the dog sees.,INVALID,Sentence does not fit the scoped VP pattern
-The happy runs.,INVALID,Adjective appears without a noun
-Books likes Mary.,INVALID,Unknown plural noun token for the starter lexicon
-Under the tree sleeps.,INVALID,Prepositional opening is out of scope
+sentence,label,source,reason
+the cat runs,VALID,manual,determiner noun with intransitive verb
+a dog eats,VALID,manual,determiner noun with intransitive verb
+the fish sees a cat,VALID,manual,transitive verb with object noun phrase
+the big dog likes mary,VALID,manual,adjective noun phrase with proper name object
+the hungry boy eats an apple,INVALID,manual,unknown word an
+the hungry boy eats the apple,VALID,manual,adjective noun phrase with object noun phrase
+she sees john,VALID,manual,pronoun subject with proper name object
+they like mary,INVALID,manual,unknown word like
+they likes mary,VALID,manual,pronoun subject with transitive verb
+john sees the small fish,VALID,manual,proper name subject with adjective object
+mary likes a dog,VALID,manual,proper name subject with object noun phrase
+cat runs,VALID,manual,noun subject with intransitive verb
+boy eats apple,VALID,manual,noun subject with transitive verb and noun object
+the cat the runs,INVALID,manual,determiner appears in invalid verb phrase position
+cat the runs,INVALID,manual,noun followed by determiner wrong order
+the runs cat,INVALID,manual,determiner followed by verb invalid noun phrase
+big cat runs,INVALID,manual,adjective starts sentence without determiner
+the big runs,INVALID,manual,determiner adjective sequence lacks noun
+the cat,INVALID,manual,incomplete sentence without verb phrase
+john,INVALID,manual,single word incomplete sentence
+runs the cat,INVALID,manual,verb first invalid declarative structure
+the cat eats sees,INVALID,manual,repeated verb after subject
+mary sees likes,INVALID,manual,repeated verb without valid object
+she runs eats,INVALID,manual,repeated verb after valid intransitive verb
+the dog likes sees mary,INVALID,manual,repeated verb inside verb phrase
+the the cat runs,INVALID,manual,repeated determiner invalid noun phrase
+a hungry fish sees the apple,VALID,manual,determiner adjective noun with object noun phrase
+the girl sees the boy,VALID,manual,determiner noun subject with object noun phrase
+he eats fish,VALID,manual,pronoun subject with noun object
+mary sees zebra,INVALID,manual,unknown word zebra
+the bird runs,INVALID,manual,unknown word bird
+the apple sees the girl,VALID,manual,noun phrase subject with transitive verb
