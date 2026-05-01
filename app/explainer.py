@@ -1,80 +1,70 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import Any
 
-from .cky_parser import ParseResult, parse_sentence
-from .grammar import CFGGrammar, get_default_grammar
-from .tokenizer import tokenize
+from .cky_parser import CKYParser
+from .grammar import CNF_GRAMMAR
 
 
 @dataclass(frozen=True)
 class ValidationExplanation:
     is_valid: bool
     message: str
-    tokens: List[str]
-    unknown_tokens: List[str]
+    tokens: list[str]
+    unknown_tokens: list[str]
 
 
-def explain_sentence(
-    sentence: str,
-    grammar: CFGGrammar | None = None,
-) -> ValidationExplanation:
-    grammar = grammar or get_default_grammar()
-    tokens = tokenize(sentence)
-    result = parse_sentence(sentence, grammar=grammar)
-    return explain_result(tokens, result, grammar=grammar)
+def explain_result(result: dict, grammar: dict) -> str:
+    """Return a short explanation for a CKY parser result."""
+
+    tokens = result.get("tokens", [])
+    unknown_words = result.get("unknown_words", [])
+
+    if not tokens:
+        return "Invalid input: no words were provided."
+
+    if unknown_words:
+        words = ", ".join(unknown_words)
+        return f"Invalid sentence: unknown word(s): {words}."
+
+    if result.get("valid", False):
+        return "Valid Level 2 sentence: it matches the supported CFG."
+
+    if len(tokens) == 1:
+        return "Invalid sentence: a single word is incomplete for this Level 2 CFG."
+
+    first_categories = _categories(tokens[0], grammar)
+    second_categories = _categories(tokens[1], grammar)
+    last_categories = _categories(tokens[-1], grammar)
+
+    if _has_category(first_categories, "V"):
+        return "Invalid sentence: Level 2 declarative sentences cannot start with a verb."
+
+    if _has_category(first_categories, "N") and _has_category(second_categories, "Det"):
+        return "Invalid sentence: noun followed by determiner is the wrong noun phrase order."
+
+    if _has_category(first_categories, "Det") and _has_category(second_categories, "V"):
+        return "Invalid sentence: a determiner followed by a verb does not form a valid noun phrase."
+
+    if _has_category(first_categories, "Adj"):
+        return "Invalid sentence: an adjective cannot start a supported Level 2 sentence."
+
+    if _has_category(last_categories, "Det"):
+        return "Invalid sentence: a determiner cannot appear at the end of this CFG pattern."
+
+    return "Invalid sentence: all words are known, but the order does not match the Level 2 CFG."
 
 
-def explain_result(
-    tokens: List[str],
-    result: ParseResult,
-    grammar: CFGGrammar | None = None,
-) -> ValidationExplanation:
-    grammar = grammar or get_default_grammar()
-    unknown_tokens = [token for token in tokens if not grammar.knows_token(token)]
+def explain_sentence(sentence: str, grammar: dict[str, Any] | None = None) -> str:
+    grammar = grammar or CNF_GRAMMAR
+    parser = CKYParser(grammar)
+    return explain_result(parser.parse(sentence), grammar)
 
-    if result.is_valid:
-        message = (
-            "Valid Level 2 sentence: it matches the supported declarative pattern "
-            "S -> NP VP within the scoped CFG."
-        )
-        return ValidationExplanation(
-            is_valid=True,
-            message=message,
-            tokens=tokens,
-            unknown_tokens=[],
-        )
 
-    if unknown_tokens:
-        message = (
-            "Invalid sentence: the limited lexicon does not recognize "
-            + ", ".join(sorted(set(unknown_tokens)))
-            + "."
-        )
-        return ValidationExplanation(
-            is_valid=False,
-            message=message,
-            tokens=tokens,
-            unknown_tokens=unknown_tokens,
-        )
+def _categories(token: str, grammar: dict) -> set[str]:
+    return set(grammar["lexical"].get(token, set()))
 
-    has_np_prefix = any("NP" in result.chart[0][end] for end in range(1, len(tokens) + 1))
-    has_vp_suffix = any("VP" in result.chart[start][len(tokens)] for start in range(len(tokens)))
 
-    if not has_np_prefix:
-        message = "Invalid sentence: the opening words do not form a supported noun phrase."
-    elif not has_vp_suffix:
-        message = "Invalid sentence: the sentence does not contain a supported verb phrase."
-    else:
-        message = (
-            "Invalid sentence: all words are known, but the sequence does not match "
-            "the supported Level 2 declarative patterns."
-        )
-
-    return ValidationExplanation(
-        is_valid=False,
-        message=message,
-        tokens=tokens,
-        unknown_tokens=[],
-    )
+def _has_category(categories: set[str], category: str) -> bool:
+    return category in categories
