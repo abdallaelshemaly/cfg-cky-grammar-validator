@@ -1,28 +1,21 @@
 from __future__ import annotations
 
-import argparse
+from pathlib import Path
 
-from app.evaluator import evaluate_dataset, summarize_results
+from app.evaluator import evaluate_dataset
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Evaluate the CFG validator on a CSV dataset."
-    )
-    parser.add_argument(
-        "--dataset",
-        default="data/manual_level2_dataset.csv",
-        help="Path to a CSV file with sentence and label columns.",
-    )
-    args = parser.parse_args()
+    dataset_path = Path("data/final_dataset.csv")
+    output_path = Path("data/evaluation_results.csv")
 
-    results = evaluate_dataset(args.dataset)
-    summary = summarize_results(results)
+    evaluation = evaluate_dataset(str(dataset_path))
 
-    print(f"Dataset: {args.dataset}")
-    print(f"Total examples: {summary.total}")
-    print(f"Correct predictions: {summary.correct}")
-    print(f"Accuracy: {summary.accuracy:.2%}")
+    print(f"Total: {evaluation['total']}")
+    print(f"Correct: {evaluation['correct']}")
+    print(f"Accuracy: {evaluation['accuracy']:.4f}")
+
+    evaluation["results"].to_csv(output_path, index=False)
 
 
 if __name__ == "__main__":
