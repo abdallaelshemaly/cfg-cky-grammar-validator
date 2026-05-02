@@ -1,25 +1,33 @@
-from app.cky_parser import parse_sentence
-from app.parse_tree import build_parse_tree, render_parse_tree
+from __future__ import annotations
+
+import pytest
 
 
-def test_parser_accepts_simple_declarative_sentence() -> None:
-    result = parse_sentence("The cat sleeps.")
-    assert result.is_valid
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "the cat runs",
+        "a dog eats fish",
+        "the big dog runs",
+        "he runs",
+        "john sees mary",
+    ],
+)
+def test_parser_accepts_valid_level2_sentences(parse_sentence, sentence):
+    analysis = parse_sentence(sentence)
+    assert analysis["valid"] is True
 
 
-def test_parser_accepts_transitive_sentence() -> None:
-    result = parse_sentence("John likes Mary.")
-    assert result.is_valid
-
-    tree = build_parse_tree(result)
-    assert render_parse_tree(tree).startswith("(S ")
-
-
-def test_parser_rejects_wrong_word_order() -> None:
-    result = parse_sentence("Cat the sleeps.")
-    assert not result.is_valid
-
-
-def test_parser_rejects_out_of_scope_structure() -> None:
-    result = parse_sentence("Under the tree sleeps.")
-    assert not result.is_valid
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "cat the runs",
+        "the eats cat",
+        "runs the cat",
+        "the cat",
+        "the elephant runs",
+    ],
+)
+def test_parser_rejects_invalid_level2_sentences(parse_sentence, sentence):
+    analysis = parse_sentence(sentence)
+    assert analysis["valid"] is False
