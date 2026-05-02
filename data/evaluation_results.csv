@@ -1,0 +1,33 @@
+sentence,expected_label,predicted_label,correct
+the cat runs,VALID,INVALID,False
+a dog eats,VALID,INVALID,False
+the fish sees a cat,VALID,INVALID,False
+the big dog likes mary,VALID,INVALID,False
+the hungry boy eats an apple,INVALID,INVALID,True
+the hungry boy eats the apple,VALID,INVALID,False
+she sees john,VALID,INVALID,False
+they like mary,INVALID,INVALID,True
+they likes mary,VALID,INVALID,False
+john sees the small fish,VALID,INVALID,False
+mary likes a dog,VALID,INVALID,False
+cat runs,VALID,INVALID,False
+boy eats apple,VALID,INVALID,False
+the cat the runs,INVALID,INVALID,True
+cat the runs,INVALID,INVALID,True
+the runs cat,INVALID,INVALID,True
+big cat runs,INVALID,INVALID,True
+the big runs,INVALID,INVALID,True
+the cat,INVALID,INVALID,True
+john,INVALID,INVALID,True
+runs the cat,INVALID,INVALID,True
+the cat eats sees,INVALID,INVALID,True
+mary sees likes,INVALID,INVALID,True
+she runs eats,INVALID,INVALID,True
+the dog likes sees mary,INVALID,INVALID,True
+the the cat runs,INVALID,INVALID,True
+a hungry fish sees the apple,VALID,INVALID,False
+the girl sees the boy,VALID,INVALID,False
+he eats fish,VALID,INVALID,False
+mary sees zebra,INVALID,INVALID,True
+the bird runs,INVALID,INVALID,True
+the apple sees the girl,VALID,INVALID,False
