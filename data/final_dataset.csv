@@ -1,0 +1,33 @@
+sentence,label
+the cat runs,VALID
+a dog eats,VALID
+the fish sees a cat,VALID
+the big dog likes mary,VALID
+the hungry boy eats an apple,INVALID
+the hungry boy eats the apple,VALID
+she sees john,VALID
+they like mary,INVALID
+they likes mary,VALID
+john sees the small fish,VALID
+mary likes a dog,VALID
+cat runs,VALID
+boy eats apple,VALID
+the cat the runs,INVALID
+cat the runs,INVALID
+the runs cat,INVALID
+big cat runs,INVALID
+the big runs,INVALID
+the cat,INVALID
+john,INVALID
+runs the cat,INVALID
+the cat eats sees,INVALID
+mary sees likes,INVALID
+she runs eats,INVALID
+the dog likes sees mary,INVALID
+the the cat runs,INVALID
+a hungry fish sees the apple,VALID
+the girl sees the boy,VALID
+he eats fish,VALID
+mary sees zebra,INVALID
+the bird runs,INVALID
+the apple sees the girl,VALID
