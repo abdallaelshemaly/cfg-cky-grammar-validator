@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import importlib.machinery
 import inspect
+import pprint
 import sys
 import types
 from pathlib import Path
@@ -315,12 +316,12 @@ def _extract_explanation(result, is_valid: bool) -> str:
 
 def _extract_tree(result):
     if isinstance(result, dict):
-        for key in ("parse_tree", "tree"):
+        for key in ("parse_tree", "tree", "parseTree", "derivation"):
             value = result.get(key)
             if value:
                 return value
 
-    for attr in ("parse_tree", "tree"):
+    for attr in ("parse_tree", "tree", "parseTree", "derivation"):
         value = getattr(result, attr, None)
         if value:
             return value
@@ -329,6 +330,95 @@ def _extract_tree(result):
         return result
 
     return None
+
+
+def _build_tree_from_result(result):
+    parse_tree = _extract_tree(result)
+    if parse_tree is not None:
+        return parse_tree
+
+    parse_tree_module = importlib.import_module("app.parse_tree")
+
+    if hasattr(result, "back") and hasattr(result, "tokens"):
+        tokens = getattr(result, "tokens", [])
+        if tokens:
+            try:
+                return parse_tree_module.build_parse_tree(result)
+            except Exception:
+                return None
+        return None
+
+    if isinstance(result, dict):
+        back = result.get("back")
+        tokens = result.get("tokens", [])
+        if isinstance(back, list) and tokens:
+            start_symbol = result.get("start_symbol", "S")
+            try:
+                return parse_tree_module.build_tree(
+                    back,
+                    0,
+                    len(tokens) - 1,
+                    start_symbol,
+                )
+            except Exception:
+                return None
+
+    return None
+
+
+def _format_tree_node(tree, indent: int = 0) -> str:
+    if isinstance(tree, str):
+        return tree
+
+    if isinstance(tree, (list, tuple)):
+        if not tree:
+            return "()"
+
+        label = str(tree[0])
+        children = list(tree[1:])
+        if not children:
+            return f"({label})"
+
+        if all(not isinstance(child, (list, tuple)) for child in children):
+            child_text = " ".join(str(child) for child in children)
+            return f"({label} {child_text})"
+
+        child_lines = []
+        child_indent = indent + 2
+        for child in children:
+            child_lines.append(" " * child_indent + _format_tree_node(child, child_indent))
+        return f"({label}\n" + "\n".join(child_lines) + "\n" + " " * indent + ")"
+
+    return str(tree)
+
+
+def _tree_to_text(tree) -> str:
+    if tree is None:
+        return ""
+
+    if isinstance(tree, str):
+        return tree
+
+    if hasattr(tree, "pformat") and callable(getattr(tree, "pformat")):
+        try:
+            return tree.pformat()
+        except TypeError:
+            try:
+                return tree.pformat(margin=100000)
+            except TypeError:
+                pass
+
+    if isinstance(tree, (list, tuple)):
+        try:
+            parse_tree_module = importlib.import_module("app.parse_tree")
+            return parse_tree_module.format_tree(tree)
+        except Exception:
+            return _format_tree_node(tree)
+
+    if isinstance(tree, dict):
+        return pprint.pformat(tree, sort_dicts=False)
+
+    return str(tree)
 
 
 def main() -> None:
@@ -364,7 +454,7 @@ def main() -> None:
             result = _run_parse(parser, sentence, tokens)
             is_valid = _extract_valid(result)
             explanation = _extract_explanation(result, is_valid)
-            parse_tree = _extract_tree(result)
+            parse_tree = _build_tree_from_result(result) if is_valid else None
         except Exception as exc:
             st.error(f"Could not analyze the sentence: {exc}")
             return
@@ -388,9 +478,12 @@ def main() -> None:
         st.write("Explanation:")
         st.write(explanation)
 
-        if is_valid and parse_tree is not None:
-            st.write("Parse Tree:")
-            st.code(str(parse_tree))
+        if is_valid:
+            st.subheader("Parse Tree")
+            if parse_tree is not None:
+                st.code(_tree_to_text(parse_tree), language="text")
+            else:
+                st.info("Parse tree is not available from the current parser output.")
 
 
 if __name__ == "__main__":
