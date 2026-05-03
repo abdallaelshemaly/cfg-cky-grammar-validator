@@ -42,10 +42,11 @@ The starter grammar focuses on patterns such as:
 
 Example supported sentences:
 
-- `The cat sleeps.`
-- `John likes Mary.`
-- `She reads the book.`
-- `The red dog runs.`
+- `the cat runs`
+- `john sees mary`
+- `she eats apple`
+- `the big dog likes mary`
+- `a small cat eats fish`
 
 ## Features
 
@@ -56,15 +57,22 @@ Example supported sentences:
 - lightweight explanations for valid and invalid results
 - dataset evaluation utilities for manual experiments
 - a small Streamlit interface for demos
+- no machine learning training
+- no API keys required
 
 ## Dataset Strategy
 
-The main evaluation file is a manually curated Level 2 dataset in `data/manual_level2_dataset.csv`. This keeps the task aligned with the supported grammar instead of over-claiming broad coverage.
+The dataset workflow keeps the task aligned with the supported grammar instead of over-claiming broad English coverage.
+
+- `data/manual_level2_dataset.csv` is the curated manual source dataset.
+- `data/jfleg_raw.csv` is optional downloaded external raw data from Hugging Face.
+- `data/final_dataset.csv` is the actual evaluation input used by `evaluate.py`.
+- `data/evaluation_results.csv` is the generated evaluation output.
 
 The repository also includes two helper scripts for JFLEG-related workflow:
 
 - `scripts/download_jfleg.py` downloads raw JFLEG examples for optional inspection
-- `scripts/prepare_level2_dataset.py` filters short candidates for manual review only
+- `scripts/prepare_level2_dataset.py` prepares a filtered Level 2 evaluation dataset
 
 JFLEG is not treated as a direct gold-standard grammar dataset for this project. Any external examples should be manually reviewed before being added to the Level 2 evaluation set.
 
@@ -79,13 +87,15 @@ pip install -r requirements.txt
 Run the command-line validator:
 
 ```bash
-python run.py "The cat sleeps."
+python run.py
 ```
+
+Then enter a sentence when prompted, such as `the cat runs`.
 
 Run dataset evaluation:
 
 ```bash
-python evaluate.py --dataset data/manual_level2_dataset.csv
+python evaluate.py
 ```
 
 Run the Streamlit app:
