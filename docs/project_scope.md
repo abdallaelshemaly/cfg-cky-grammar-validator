@@ -24,6 +24,17 @@ supported grammar.
 - tense and aspect modeling
 - grammar correction or rewrite generation
 
+## Why is the Scope Limited
+
+The scope of this project is intentionally limited to maintain focus and feasibility. Full English grammar encompasses thousands of rules, exceptions, and contextual nuances that would make the system computationally expensive and error-prone and too big for a small university project. By restricting to Level 2 grammar, we can:
+
+- Demonstrate core NLP concepts like CFG parsing and CKY algorithm effectively.
+- Ensure high accuracy within the supported domain.
+- Keep the project manageable for educational purposes.
+- Avoid the errors of over-generalization in grammar checking.
+
+This approach aligns with the project's goal as a scoped educational tool.
+
 ## Success Criteria
 
 - The parser accepts supported Level 2 sentences.

@@ -79,7 +79,7 @@ pip install -r requirements.txt
 Run the command-line validator:
 
 ```bash
-python run.py "The cat sleeps."
+python run.py "The cat runs."
 ```
 
 Run dataset evaluation:
