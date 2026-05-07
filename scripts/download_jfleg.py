@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -21,7 +22,7 @@ def main() -> None:
             rows.append(
                 {
                     "sentence": item["sentence"],
-                    "corrections": " || ".join(item["corrections"]),
+                    "corrections": json.dumps(item["corrections"]),
                     "split": split_name,
                 }
             )

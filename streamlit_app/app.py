@@ -43,6 +43,9 @@ _ensure_project_package_imports()
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+from app.explainer import explain_result
+from app.grammar import CNF_GRAMMAR
+
 
 def _import_first(module_names: list[str]):
     for module_name in module_names:
@@ -453,7 +456,7 @@ def main() -> None:
 
             result = _run_parse(parser, sentence, tokens)
             is_valid = _extract_valid(result)
-            explanation = _extract_explanation(result, is_valid)
+            explanation = explain_result(result, CNF_GRAMMAR)
             parse_tree = _build_tree_from_result(result) if is_valid else None
         except Exception as exc:
             st.error(f"Could not analyze the sentence: {exc}")

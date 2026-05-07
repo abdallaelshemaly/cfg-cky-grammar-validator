@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import ast
 import csv
+import json
 import re
 import sys
 from collections import Counter
@@ -68,8 +68,10 @@ def parse_corrections(value: object) -> list[str]:
         return []
 
     try:
-        parsed = ast.literal_eval(text)
-    except (ValueError, SyntaxError):
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        if " || " in text:
+            return [item.strip() for item in text.split(" || ") if item.strip()]
         return [text]
 
     if isinstance(parsed, (list, tuple)):
