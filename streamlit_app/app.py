@@ -8,8 +8,8 @@ import sys
 import types
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
-
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 CURRENT_FILE = Path(__file__).resolve()
@@ -20,8 +20,6 @@ def _ensure_project_package_imports() -> None:
     current_module_file = getattr(current_module, "__file__", None)
     project_app_dir = ROOT_DIR / "app"
 
-    # When Streamlit runs streamlit_app/app.py, it may register this file as
-    # module "app", which shadows the real project package at ./app.
     if (
         current_module_file
         and Path(current_module_file).resolve() == CURRENT_FILE
@@ -424,6 +422,59 @@ def _tree_to_text(tree) -> str:
     return str(tree)
 
 
+def _display_cky_table(parse_result):
+    """
+    Display the CKY parsing table as a styled pandas DataFrame.
+    parse_result: an instance of ParseResult from cky_parser (or a dict with 'table' and 'tokens').
+    """
+    # Extract table and tokens
+    if hasattr(parse_result, "table") and hasattr(parse_result, "tokens"):
+        table = parse_result.table
+        tokens = parse_result.tokens
+    elif isinstance(parse_result, dict) and "table" in parse_result and "tokens" in parse_result:
+        table = parse_result["table"]
+        tokens = parse_result["tokens"]
+    else:
+        st.info("CKY table not available for this sentence (parser result format unknown).")
+        return
+
+    n = len(tokens)
+    if n == 0:
+        st.info("Empty sentence: no table to display.")
+        return
+
+    # Create a matrix of strings (sets of non-terminals)
+    # The table is list of lists: table[start][end] where 0<=start<=end<n
+    # We'll build an n x n matrix, leaving lower triangle and i>j empty.
+    data = [["" for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        for j in range(i, n):
+            cell_set = table[i][j]
+            if cell_set:
+                # Format as comma-separated sorted list
+                data[i][j] = ", ".join(sorted(cell_set))
+            else:
+                data[i][j] = "∅"
+
+    # Create column labels as token index + token text
+    col_labels = [f"{i}: {tokens[i]}" for i in range(n)]
+    # Row labels similar but also show span start index
+    row_labels = [f"{i} ↴" for i in range(n)]
+
+    df = pd.DataFrame(data, index=row_labels, columns=col_labels)
+
+    # Apply styling: make empty/∅ cells gray, highlight non-empty cells
+    def style_cell(val):
+        if val == "∅" or val == "":
+            return "background-color: #f0f0f0; color: #888;"
+        else:
+            return "background-color: #c8e6c9; color: #1b5e20; font-weight: bold;"
+
+    styled_df = df.style.applymap(style_cell)
+    st.write("**CKY Parsing Table** (upper triangle; rows = start index, columns = end index)")
+    st.dataframe(styled_df, use_container_width=True)
+
+
 def main() -> None:
     st.set_page_config(page_title="CFG-Based Sentence Grammar Validator", layout="centered")
 
@@ -487,6 +538,13 @@ def main() -> None:
                 st.code(_tree_to_text(parse_tree), language="text")
             else:
                 st.info("Parse tree is not available from the current parser output.")
+
+            # Display CKY table for valid sentences
+            st.subheader("CKY Parsing Table")
+            try:
+                _display_cky_table(result)
+            except Exception as e:
+                st.warning(f"Could not render CKY table: {e}")
 
 
 if __name__ == "__main__":
