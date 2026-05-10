@@ -6,6 +6,9 @@ Build a rule-based sentence validator that uses a small Context-Free Grammar and
 the CKY algorithm to determine whether an input sentence belongs to the
 supported grammar.
 
+This repository does not train any machine learning model and does not require
+API keys. It is a deterministic, rule-based NLP project.
+
 ## In Scope
 
 - simple declarative sentences

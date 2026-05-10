@@ -183,7 +183,16 @@ def main() -> None:
     }
 
     manual_rows = prepare_manual_rows(MANUAL_DATASET_PATH)
-    jfleg_rows = prepare_jfleg_rows(JFLEG_RAW_PATH, allowed_words)
+    jfleg_rows: list[dict[str, str]] = []
+
+    if JFLEG_RAW_PATH.exists():
+        jfleg_rows = prepare_jfleg_rows(JFLEG_RAW_PATH, allowed_words)
+    else:
+        print(
+            "JFLEG raw file not found; building final_dataset.csv from the manual "
+            "Level 2 dataset only."
+        )
+
     final_rows = deduplicate_rows([*manual_rows, *jfleg_rows])
 
     write_final_dataset(FINAL_DATASET_PATH, final_rows)

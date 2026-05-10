@@ -98,10 +98,16 @@ Run dataset evaluation:
 python evaluate.py
 ```
 
+Run the test suite:
+
+```bash
+python -m pytest
+```
+
 Run the Streamlit app:
 
 ```bash
-streamlit run streamlit_app/app.py
+python -m streamlit run streamlit_app/app.py
 ```
 
 ## Limitations
